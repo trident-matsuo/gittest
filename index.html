@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Promise</title>
+</head>
+
+<body>
+    <H1>■Promiseて何？</H1>
+    <p>非同期の処理順をコントロールする仕組み。非同期じゃなくても使える</p>
+    <H2>〇基本構文(コンソールで実行)</H2>
+    <div style="border:solid 1px; width: fit-content;">
+    <pre><code>
+new Promise((resolve, reject) => {
+  //　やりたい処理
+  let num = Math.random();
+    console.log("num=" + num);
+  if (num > 0.5) {
+    resolve('success!!');
+  } else {
+    reject(new Error('failed!!'));
+  }
+}).then((result) => {
+  //　やりたい処理(成功)
+  console.log("成功" + result);
+}).catch((error) => {
+  //　やりたい処理(失敗)
+  console.log("失敗!! " + error);
+}).finally(() => {
+  //　やりたい処理()
+  console.log("後始末!");
+});
+</code></pre>
+</div>
+    <H2>〇コンソールを表示し、ボタンを押下してみよう(コンソールを確認)</H2>
+    <button onclick="script1()">ケース1</button>
+    <button onclick="script2()">ケース2</button>
+    <button onclick="script3()">ケース3</button>
+    <ul>
+        <li>ケース１：ダメな例</li>
+        <li>ケース２：Promiseで順番を制御した例</li>
+        <li>ケース３：Promiseをネストさせる例</li>
+    </ul>
+
+    <script>
+        function script1() {
+            console.log("---1.開始---");
+            //時差で実行する処理
+            setTimeout(() => {
+                console.log("2.次(1秒後に実行)");
+            }, 1000);
+            //2の後に実行したい処理
+            console.log("3.終了");
+        }
+
+        function script2() {
+            console.log("---1.開始---");
+            // Promiseで順番を保障
+            new Promise((resolve) => {
+                //時差で実行する処理
+                setTimeout(() => {
+                    console.log("2.次(1秒後)");
+                    //処理正常完了のお知らせ
+                    resolve();
+                }, 1000);
+            }).then(() => {
+                // 処理が正常終了した
+                console.log("3.終了");
+            });
+        }
+
+        function script3() {
+            console.log("---開始---");
+            // Promiseのネスト
+            new Promise(resolve => {
+                console.log("1番目");
+                resolve("OK1");
+            }).then((result) => {
+                console.log("2番目 = " + result);
+                return "OK2";
+            }).then((result) => {
+                // 2が成功したら呼び出される
+                console.log("3番目 = " + result);
+                //console.a();
+                return "OK3";
+            }).then((result) => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        console.log("4番目(3秒後) = " + result);
+                        resolve("OK4");
+                        //resolve("NG4");
+                    }, 3000);
+                });
+            }).then((result) => {
+                // 4が成功したら呼び出される(そして刻は動き出す)
+                console.log("5番目(最後) = " + result);
+            }).catch((error) => {
+                console.log("エラー!! " + error);
+            });
+            console.log("終了");
+        }
+
+    </script>
+</body>
+
+</html>
